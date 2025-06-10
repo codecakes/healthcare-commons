@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar, Clock, User, Phone } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface Provider {
   id: string;
@@ -25,6 +26,7 @@ const AppointmentBooking: React.FC<AppointmentBookingProps> = ({
   onBookingComplete,
   onCancel
 }) => {
+  const { t } = useTranslation();
   const [bookingData, setBookingData] = useState({
     date: '',
     time: '',
@@ -66,7 +68,7 @@ const AppointmentBooking: React.FC<AppointmentBookingProps> = ({
         <CardHeader>
           <CardTitle className="flex items-center">
             <Calendar className="h-5 w-5 mr-2" />
-            Book Appointment
+            {t('bookAppointment')}
           </CardTitle>
           <p className="text-sm text-gray-600">
             {provider.name} - {provider.specialty}
@@ -90,7 +92,7 @@ const AppointmentBooking: React.FC<AppointmentBookingProps> = ({
                 <Label htmlFor="time">Time *</Label>
                 <Select value={bookingData.time} onValueChange={(value) => setBookingData(prev => ({ ...prev, time: value }))}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select time" />
+                <SelectValue placeholder={t('selectTime')} />
                   </SelectTrigger>
                   <SelectContent>
                     {timeSlots.map((time) => (
@@ -102,7 +104,7 @@ const AppointmentBooking: React.FC<AppointmentBookingProps> = ({
             </div>
 
             <div>
-              <Label htmlFor="patientName">Patient Name *</Label>
+              <Label htmlFor="patientName">{t('patientName')} *</Label>
               <Input
                 id="patientName"
                 value={bookingData.patientName}
@@ -112,7 +114,7 @@ const AppointmentBooking: React.FC<AppointmentBookingProps> = ({
             </div>
 
             <div>
-              <Label htmlFor="contactNumber">Contact Number *</Label>
+              <Label htmlFor="contactNumber">{t('contactNumber')} *</Label>
               <Input
                 id="contactNumber"
                 type="tel"
@@ -135,10 +137,10 @@ const AppointmentBooking: React.FC<AppointmentBookingProps> = ({
 
             <div className="flex space-x-2 pt-4">
               <Button type="button" variant="outline" onClick={onCancel} className="flex-1">
-                Cancel
+                {t('cancel')}
               </Button>
               <Button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700">
-                Book Appointment
+                {t('bookAppointment')}
               </Button>
             </div>
           </form>

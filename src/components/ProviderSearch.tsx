@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import supabase from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -26,6 +27,7 @@ interface ProviderSearchProps {
 }
 
 const ProviderSearch: React.FC<ProviderSearchProps> = ({ userLocation, demographicData }) => {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [locationQuery, setLocationQuery] = useState(demographicData?.pincode || '');
   const [providers, setProviders] = useState<Provider[]>([]);
@@ -100,14 +102,14 @@ const ProviderSearch: React.FC<ProviderSearchProps> = ({ userLocation, demograph
         
         <div className="mb-8">
           <div className="flex justify-between items-center mb-4">
-            <h1 className="text-3xl font-bold text-gray-900">Find Healthcare Providers</h1>
+            <h1 className="text-3xl font-bold text-gray-900">{t('findProviders')}</h1>
             <Button 
               variant="outline" 
               onClick={() => setShowAppointments(true)}
               className="flex items-center"
             >
               <Calendar className="h-4 w-4 mr-2" />
-              My Appointments
+              {t('myAppointments')}
             </Button>
           </div>
           
@@ -115,19 +117,19 @@ const ProviderSearch: React.FC<ProviderSearchProps> = ({ userLocation, demograph
             <CardContent className="pt-6">
               <div className="grid md:grid-cols-3 gap-4">
                 <div>
-                  <Label htmlFor="symptoms">Symptoms or Condition</Label>
+                  <Label htmlFor="symptoms">{t('symptomsPlaceholder')}</Label>
                   <Input
                     id="symptoms"
-                    placeholder="e.g., fever, cough, checkup"
+                    placeholder={t('symptomsPlaceholder')}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
                 <div>
-                  <Label htmlFor="location">Location</Label>
+                  <Label htmlFor="location">{t('locationPlaceholder')}</Label>
                   <Input
                     id="location"
-                    placeholder="Pincode or area"
+                    placeholder={t('locationPlaceholder')}
                     value={locationQuery}
                     onChange={(e) => setLocationQuery(e.target.value)}
                   />
@@ -138,7 +140,7 @@ const ProviderSearch: React.FC<ProviderSearchProps> = ({ userLocation, demograph
                     className="w-full bg-green-600 hover:bg-green-700"
                     disabled={loading}
                   >
-                    {loading ? 'Searching...' : 'Search'}
+                    {loading ? t('searching') : t('search')}
                   </Button>
                 </div>
               </div>
@@ -191,11 +193,11 @@ const ProviderSearch: React.FC<ProviderSearchProps> = ({ userLocation, demograph
                       ))}
                     </div>
                     
-                    <Button 
+                    <Button
                       onClick={() => handleBookAppointment(provider)}
                       className="w-full mt-4 bg-blue-600 hover:bg-blue-700"
                     >
-                      Book Appointment
+                      {t('bookAppointment')}
                     </Button>
                   </div>
                 </CardContent>

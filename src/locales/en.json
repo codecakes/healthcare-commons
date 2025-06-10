@@ -1,0 +1,25 @@
+{
+  "appName": "Healthcare Commons",
+  "tagline": "Connect with trusted healthcare providers. Anonymous, secure, and multilingual.",
+  "patientButton": "I'm a Patient",
+  "providerButton": "I'm a Healthcare Provider",
+  "initializing": "Initializing Healthcare Commons...",
+  "getStarted": "Get Started",
+  "findProviders": "Find Healthcare Providers",
+  "myAppointments": "My Appointments",
+  "symptomsPlaceholder": "e.g., fever, cough, checkup",
+  "locationPlaceholder": "Pincode or area",
+  "search": "Search",
+  "searching": "Searching...",
+  "selectTime": "Select time",
+  "bookAppointment": "Book Appointment",
+  "patientName": "Patient Name",
+  "contactNumber": "Contact Number",
+  "cancel": "Cancel",
+  "pageNotFound": "Page not found",
+  "returnHome": "Return to Home",
+  "language": {
+    "en": "English",
+    "hi": "Hindi"
+  }
+}

@@ -2,12 +2,14 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Heart, MapPin, Users, Calendar } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface PatientWelcomeProps {
   onGetStarted: () => void;
 }
 
 const PatientWelcome: React.FC<PatientWelcomeProps> = ({ onGetStarted }) => {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
       <div className="container mx-auto px-4 py-12">
@@ -18,17 +20,17 @@ const PatientWelcome: React.FC<PatientWelcomeProps> = ({ onGetStarted }) => {
             </div>
           </div>
           <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-4">
-            Healthcare <span className="text-blue-600">Commons</span>
+            {t('appName')}
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
-            Connect with trusted healthcare providers in your area. Anonymous, secure, and multilingual.
+            {t('tagline')}
           </p>
           <Button 
             onClick={onGetStarted}
             size="lg"
             className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg"
           >
-            Get Started
+            {t('getStarted')}
           </Button>
         </div>
 
