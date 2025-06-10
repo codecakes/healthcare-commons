@@ -7,16 +7,19 @@ import { Badge } from '@/components/ui/badge';
 import { MapPin, Clock, Star, Calendar } from 'lucide-react';
 import AppointmentBooking from './AppointmentBooking';
 import AppointmentList from './AppointmentList';
+import { useGeolocation } from '@/hooks/useGeolocation';
 
 interface Provider {
   id: string;
   name: string;
   specialty: string;
-  distance: string;
   rating: number;
   availableSlots: number;
   nextAvailable: string;
   languages: string[];
+  lat: number;
+  lng: number;
+  distance?: string;
 }
 
 interface ProviderSearchProps {
@@ -32,59 +35,44 @@ const ProviderSearch: React.FC<ProviderSearchProps> = ({ userLocation, demograph
   const [showBooking, setShowBooking] = useState<Provider | null>(null);
   const [showAppointments, setShowAppointments] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
+  const { calculateDistance } = useGeolocation();
 
-  const mockProviders: Provider[] = [
-    {
-      id: '1',
-      name: 'Dr. Priya Sharma',
-      specialty: 'General Physician',
-      distance: '1.2 km',
-      rating: 4.8,
-      availableSlots: 5,
-      nextAvailable: 'Today 2:30 PM',
-      languages: ['English', 'Hindi']
-    },
-    {
-      id: '2',
-      name: 'City Medical Center',
-      specialty: 'Multi-specialty Clinic',
-      distance: '2.1 km',
-      rating: 4.6,
-      availableSlots: 12,
-      nextAvailable: 'Tomorrow 9:00 AM',
-      languages: ['English', 'Hindi', 'Bengali']
-    },
-    {
-      id: '3',
-      name: 'Dr. Rajesh Kumar',
-      specialty: 'Pediatrician',
-      distance: '3.5 km',
-      rating: 4.9,
-      availableSlots: 3,
-      nextAvailable: 'Today 4:00 PM',
-      languages: ['English', 'Hindi', 'Tamil']
-    }
-  ];
-
+  // Fetch providers from the API on mount
   useEffect(() => {
     handleSearch();
   }, []);
 
   const handleSearch = async () => {
     setLoading(true);
-    setTimeout(() => {
-      let filteredProviders = mockProviders;
-      
+    try {
+      const lat = userLocation?.latitude;
+      const lng = userLocation?.longitude;
+      const response = await fetch(
+        `http://localhost:3001/providers/search?lat=${lat}&lng=${lng}`
+      );
+      const data: Provider[] = await response.json();
+
+      let filteredProviders = data;
       if (searchQuery) {
-        filteredProviders = filteredProviders.filter(provider => 
+        filteredProviders = filteredProviders.filter((provider) =>
           provider.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
           provider.specialty.toLowerCase().includes(searchQuery.toLowerCase())
         );
       }
-      
+
+      if (lat && lng) {
+        filteredProviders = filteredProviders.map((p) => ({
+          ...p,
+          distance: `${calculateDistance(lat, lng, p.lat, p.lng)} km`
+        }));
+      }
+
       setProviders(filteredProviders);
+    } catch (error) {
+      console.error('Error fetching providers', error);
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   const handleBookAppointment = (provider: Provider) => {
