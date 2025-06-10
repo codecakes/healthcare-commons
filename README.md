@@ -19,6 +19,9 @@ Install dependencies:
 ```bash
 npm install
 ```
+This installs the development dependencies needed for `npm run lint`. The lint
+command will fail if a package like `@eslint/js` is missing. In CI
+environments, you can instead run `npm ci` for a clean install.
 
 Create a `.env` file with your Supabase credentials:
 
