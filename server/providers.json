@@ -1,0 +1,35 @@
+[
+  {
+    "id": "1",
+    "name": "City Medical Center",
+    "specialty": "General Physician",
+    "rating": 4.6,
+    "availableSlots": 10,
+    "nextAvailable": "Today 2:30 PM",
+    "languages": ["English", "Hindi"],
+    "lat": 12.9716,
+    "lng": 77.5946
+  },
+  {
+    "id": "2",
+    "name": "Lakeside Hospital",
+    "specialty": "Multi-specialty Clinic",
+    "rating": 4.8,
+    "availableSlots": 8,
+    "nextAvailable": "Tomorrow 9:00 AM",
+    "languages": ["English", "Kannada"],
+    "lat": 12.9352,
+    "lng": 77.6245
+  },
+  {
+    "id": "3",
+    "name": "Sunshine Children's Clinic",
+    "specialty": "Pediatrician",
+    "rating": 4.9,
+    "availableSlots": 6,
+    "nextAvailable": "Today 4:00 PM",
+    "languages": ["English", "Hindi"],
+    "lat": 12.9279,
+    "lng": 77.6271
+  }
+]
