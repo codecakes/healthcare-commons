@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import supabase from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -38,7 +39,7 @@ const AppointmentBooking: React.FC<AppointmentBookingProps> = ({
     '14:00', '14:30', '15:00', '15:30', '16:00', '16:30'
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const appointmentId = 'apt-' + Date.now();
     const appointment = {
@@ -49,12 +50,13 @@ const AppointmentBooking: React.FC<AppointmentBookingProps> = ({
       status: 'confirmed',
       createdAt: new Date().toISOString()
     };
-    
-    // Store appointment locally
-    const appointments = JSON.parse(localStorage.getItem('appointments') || '[]');
-    appointments.push(appointment);
-    localStorage.setItem('appointments', JSON.stringify(appointments));
-    
+
+    const { error } = await supabase.from('appointments').insert(appointment);
+    if (error) {
+      console.error('Failed to book appointment', error);
+      return;
+    }
+
     onBookingComplete(appointment);
   };
 

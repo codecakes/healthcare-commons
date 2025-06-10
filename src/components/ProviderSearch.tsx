@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import supabase from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,38 +34,6 @@ const ProviderSearch: React.FC<ProviderSearchProps> = ({ userLocation, demograph
   const [showAppointments, setShowAppointments] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
 
-  const mockProviders: Provider[] = [
-    {
-      id: '1',
-      name: 'Dr. Priya Sharma',
-      specialty: 'General Physician',
-      distance: '1.2 km',
-      rating: 4.8,
-      availableSlots: 5,
-      nextAvailable: 'Today 2:30 PM',
-      languages: ['English', 'Hindi']
-    },
-    {
-      id: '2',
-      name: 'City Medical Center',
-      specialty: 'Multi-specialty Clinic',
-      distance: '2.1 km',
-      rating: 4.6,
-      availableSlots: 12,
-      nextAvailable: 'Tomorrow 9:00 AM',
-      languages: ['English', 'Hindi', 'Bengali']
-    },
-    {
-      id: '3',
-      name: 'Dr. Rajesh Kumar',
-      specialty: 'Pediatrician',
-      distance: '3.5 km',
-      rating: 4.9,
-      availableSlots: 3,
-      nextAvailable: 'Today 4:00 PM',
-      languages: ['English', 'Hindi', 'Tamil']
-    }
-  ];
 
   useEffect(() => {
     handleSearch();
@@ -72,19 +41,23 @@ const ProviderSearch: React.FC<ProviderSearchProps> = ({ userLocation, demograph
 
   const handleSearch = async () => {
     setLoading(true);
-    setTimeout(() => {
-      let filteredProviders = mockProviders;
-      
-      if (searchQuery) {
-        filteredProviders = filteredProviders.filter(provider => 
-          provider.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          provider.specialty.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-      }
-      
-      setProviders(filteredProviders);
-      setLoading(false);
-    }, 1000);
+
+    let query = supabase.from('providers').select('*');
+    if (searchQuery) {
+      query = query.ilike('name', `%${searchQuery}%`);
+    }
+    if (locationQuery) {
+      query = query.eq('pincode', locationQuery);
+    }
+
+    const { data, error } = await query;
+    if (error) {
+      console.error('Error fetching providers', error);
+      setProviders([]);
+    } else {
+      setProviders(data as Provider[]);
+    }
+    setLoading(false);
   };
 
   const handleBookAppointment = (provider: Provider) => {
