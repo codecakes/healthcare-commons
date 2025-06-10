@@ -20,6 +20,13 @@ Install dependencies:
 npm install
 ```
 
+Create a `.env` file with your Supabase credentials:
+
+```bash
+cp .env.example .env
+```
+Fill in `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in `.env`.
+
 Start the development server:
 
 ```bash
