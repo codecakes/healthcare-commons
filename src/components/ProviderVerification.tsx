@@ -27,24 +27,33 @@ const ProviderVerification: React.FC<ProviderVerificationProps> = ({ onVerificat
   const [verificationStatus, setVerificationStatus] = useState<'pending' | 'verified' | 'rejected'>('pending');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    // Mock verification process
-    setTimeout(() => {
-      setVerificationStatus('verified');
+
+    try {
+      const res = await fetch('/providers/verify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
+
+      const result = await res.json();
+
+      if (res.ok && result.verified) {
+        setVerificationStatus('verified');
+        onVerificationComplete(result.provider);
+      } else {
+        setVerificationStatus('rejected');
+      }
+    } catch (err) {
+      console.error('Verification failed', err);
+      setVerificationStatus('rejected');
+    } finally {
       setIsSubmitting(false);
-      
-      // Complete verification after a short delay
-      setTimeout(() => {
-        onVerificationComplete({ 
-          ...formData, 
-          status: 'verified', 
-          verifiedAt: new Date().toISOString() 
-        });
-      }, 1500);
-    }, 2000);
+    }
   };
 
   const handleGoBack = () => {
@@ -84,6 +93,11 @@ const ProviderVerification: React.FC<ProviderVerificationProps> = ({ onVerificat
                 <Badge className="bg-green-100 text-green-800">
                   Verified Healthcare Provider
                 </Badge>
+              </div>
+            ) : verificationStatus === 'rejected' ? (
+              <div className="text-center py-8">
+                <p className="text-red-600 mb-4">Verification failed. Please check your details and try again.</p>
+                <Button onClick={() => setVerificationStatus('pending')}>Back to Form</Button>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
