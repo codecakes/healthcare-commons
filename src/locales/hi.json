@@ -1,0 +1,25 @@
+{
+  "appName": "हेल्थकेयर कॉमन्स",
+  "tagline": "विश्वसनीय स्वास्थ्य सेवाएं पाएं। गुमनाम, सुरक्षित और बहुभाषी।",
+  "patientButton": "मैं मरीज हूँ",
+  "providerButton": "मैं स्वास्थ्य प्रदाता हूँ",
+  "initializing": "हेल्थकेयर कॉमन्स प्रारंभ हो रहा है...",
+  "getStarted": "शुरू करें",
+  "findProviders": "स्वास्थ्य प्रदाता खोजें",
+  "myAppointments": "मेरी अपॉइंटमेंट्स",
+  "symptomsPlaceholder": "जैसे बुखार, खांसी, जांच",
+  "locationPlaceholder": "पिनकोड या क्षेत्र",
+  "search": "खोजें",
+  "searching": "खोज जारी है...",
+  "selectTime": "समय चुनें",
+  "bookAppointment": "अपॉइंटमेंट बुक करें",
+  "patientName": "मरीज का नाम",
+  "contactNumber": "संपर्क नंबर",
+  "cancel": "रद्द करें",
+  "pageNotFound": "पृष्ठ नहीं मिला",
+  "returnHome": "होम पर जाएँ",
+  "language": {
+    "en": "अंग्रेज़ी",
+    "hi": "हिन्दी"
+  }
+}

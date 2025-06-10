@@ -1,6 +1,7 @@
 import React from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Globe } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface Language {
   code: string;
@@ -13,13 +14,15 @@ interface LanguageSelectorProps {
   onLanguageChange: (language: string) => void;
 }
 
-const LanguageSelector: React.FC<LanguageSelectorProps> = ({ 
-  currentLanguage, 
-  onLanguageChange 
+const LanguageSelector: React.FC<LanguageSelectorProps> = ({
+  currentLanguage,
+  onLanguageChange
 }) => {
+  const { t } = useTranslation();
+
   const languages: Language[] = [
-    { code: 'en', name: 'English', nativeName: 'English' },
-    { code: 'hi', name: 'Hindi', nativeName: 'हिन्दी' },
+    { code: 'en', name: t('language.en'), nativeName: 'English' },
+    { code: 'hi', name: t('language.hi'), nativeName: 'हिन्दी' },
     { code: 'bn', name: 'Bengali', nativeName: 'বাংলা' },
     { code: 'te', name: 'Telugu', nativeName: 'తెలుగు' },
     { code: 'mr', name: 'Marathi', nativeName: 'मराठी' },
