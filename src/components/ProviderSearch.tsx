@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { MapPin, Clock, Star, Calendar } from 'lucide-react';
 import AppointmentBooking from './AppointmentBooking';
 import AppointmentList from './AppointmentList';
+import { diagnosisService } from '@/services/diagnosis';
 
 interface Provider {
   id: string;
@@ -72,16 +73,23 @@ const ProviderSearch: React.FC<ProviderSearchProps> = ({ userLocation, demograph
 
   const handleSearch = async () => {
     setLoading(true);
+    const specialties = await diagnosisService.suggestSpecialties(searchQuery);
     setTimeout(() => {
       let filteredProviders = mockProviders;
-      
-      if (searchQuery) {
-        filteredProviders = filteredProviders.filter(provider => 
+
+      if (specialties.length > 0) {
+        filteredProviders = filteredProviders.filter(
+          (provider) =>
+            specialties.includes(provider.specialty) ||
+            provider.specialty === 'Multi-specialty Clinic'
+        );
+      } else if (searchQuery) {
+        filteredProviders = filteredProviders.filter((provider) =>
           provider.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
           provider.specialty.toLowerCase().includes(searchQuery.toLowerCase())
         );
       }
-      
+
       setProviders(filteredProviders);
       setLoading(false);
     }, 1000);
