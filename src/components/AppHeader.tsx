@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import LanguageSelector from './LanguageSelector';
@@ -13,6 +14,7 @@ interface AppHeaderProps {
 
 const AppHeader: React.FC<AppHeaderProps> = ({ currentLanguage, onLanguageChange }) => {
   const { userRole, isLoggedIn } = useAppContext();
+  const { t } = useTranslation();
 
   const getRoleIcon = () => {
     if (userRole === 'provider') {
@@ -24,9 +26,9 @@ const AppHeader: React.FC<AppHeaderProps> = ({ currentLanguage, onLanguageChange
   };
 
   const getRoleText = () => {
-    if (userRole === 'provider') return 'Healthcare Provider';
-    if (userRole === 'patient') return 'Patient';
-    return 'Healthcare Commons';
+    if (userRole === 'provider') return t('providerButton');
+    if (userRole === 'patient') return t('patientButton');
+    return t('appName');
   };
 
   const getRoleBadgeColor = () => {
@@ -44,7 +46,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({ currentLanguage, onLanguageChange
             <div className="flex items-center gap-2">
               {getRoleIcon()}
               <h1 className="text-xl font-bold text-gray-900">
-                Healthcare Commons
+                {t('appName')}
               </h1>
             </div>
             

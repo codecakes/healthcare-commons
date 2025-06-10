@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useFingerprint } from '@/hooks/useFingerprint';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { useAppContext } from '@/contexts/AppContext';
@@ -10,7 +11,7 @@ import ProviderVerification from './ProviderVerification';
 import ProviderDashboard from './ProviderDashboard';
 
 const MainApp: React.FC = () => {
-  const { 
+  const {
     userRole, 
     appState, 
     currentLanguage, 
@@ -20,6 +21,7 @@ const MainApp: React.FC = () => {
     setCurrentLanguage,
     login
   } = useAppContext();
+  const { t } = useTranslation();
   
   const { sessionData, loading, storeDemographicData, getDemographicData } = useFingerprint();
   const { location, getCurrentLocation } = useGeolocation();
@@ -67,7 +69,7 @@ const MainApp: React.FC = () => {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Initializing Healthcare Commons...</p>
+          <p className="text-gray-600">{t('initializing')}</p>
         </div>
       </div>
     );
@@ -85,23 +87,23 @@ const MainApp: React.FC = () => {
           <div className="container mx-auto px-4 py-12">
             <div className="text-center mb-12">
               <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-4">
-                Healthcare <span className="text-blue-600">Commons</span>
+                {t('appName')}
               </h1>
               <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
-                Connect with trusted healthcare providers. Anonymous, secure, and multilingual.
+                {t('tagline')}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <button 
                   onClick={() => handleGetStarted('patient')}
                   className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg rounded-lg font-medium transition-colors"
                 >
-                  I'm a Patient
+                  {t('patientButton')}
                 </button>
                 <button 
                   onClick={() => handleGetStarted('provider')}
                   className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 text-lg rounded-lg font-medium transition-colors"
                 >
-                  I'm a Healthcare Provider
+                  {t('providerButton')}
                 </button>
               </div>
             </div>
