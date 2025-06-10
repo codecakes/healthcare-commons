@@ -46,3 +46,21 @@ The app will be available at `http://localhost:8080`.
 ## Project Motivation
 The Healthcare Commons App provides a foundation for anonymously matching patients with local healthcare providers. It demonstrates patient session management without storing PHI, provider credential verification, appointment scheduling, and multiple language interfaces.
 
+
+## Deploying to Render.com
+
+The app can be hosted on Render as a static site. Configure a new **Static Site** and use the following settings:
+
+1. **Build Command**: `npm install && npm run build`
+2. **Publish Directory**: `dist`
+3. **Environment**: Node 18
+
+A `static.json` file at the repository root ensures all React Router paths resolve to `index.html`:
+
+```json
+{
+  "routes": [
+    { "src": "/.*", "dest": "index.html" }
+  ]
+}
+```
