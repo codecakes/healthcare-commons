@@ -78,7 +78,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     // Keep language preference
     localStorage.setItem('currentLanguage', currentLanguage);
 
-    // Reset session data for demographics
+    // Reset demographic completion so a returning visit doesn't auto-progress
     updateSessionData({ demographicsCompleted: false });
 
     // For debugging - log remaining localStorage items
