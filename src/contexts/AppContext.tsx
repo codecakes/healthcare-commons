@@ -27,7 +27,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [currentLanguage, setCurrentLanguage] = useState('en');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   
-  const { sessionData, loading } = useFingerprint();
+  const { sessionData, loading, updateSessionData } = useFingerprint();
 
   useEffect(() => {
     // Check for existing session on app load
@@ -74,10 +74,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     localStorage.removeItem('demographicData');
     localStorage.removeItem('providerData');
     localStorage.removeItem('loginTimestamp');
-    
+
     // Keep language preference
     localStorage.setItem('currentLanguage', currentLanguage);
-    
+
+    // Reset demographic completion so a returning visit doesn't auto-progress
+    updateSessionData({ demographicsCompleted: false });
+
     // For debugging - log remaining localStorage items
     console.log('Logout completed, user returning to welcome screen');
   };
