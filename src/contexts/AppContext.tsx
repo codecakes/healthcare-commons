@@ -1,5 +1,7 @@
 import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
 import { useFingerprint } from '@/hooks/useFingerprint';
+import apolloClient from '@/lib/apollo';
+import { LOGOUT } from '@/lib/graphql';
 
 type UserRole = 'patient' | 'provider' | null;
 type AppState = 'welcome' | 'demographics' | 'search' | 'provider-verification' | 'provider-dashboard';
@@ -13,7 +15,7 @@ interface AppContextType {
   setUserRole: (role: UserRole) => void;
   setAppState: (state: AppState) => void;
   setCurrentLanguage: (language: string) => void;
-  logout: () => void;
+  logout: () => Promise<void>;
   login: (role: UserRole) => void;
 }
 
@@ -51,8 +53,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     localStorage.setItem('loginTimestamp', new Date().toISOString());
   };
 
-  const logout = () => {
+  const logout = async () => {
     console.log('Logging out user...');
+
+    // Inform the server to clear auth cookies
+    try {
+      await apolloClient.mutate({ mutation: LOGOUT });
+    } catch (err) {
+      console.error('Logout mutation failed', err);
+    }
     
     // Reset all state
     setUserRole(null);

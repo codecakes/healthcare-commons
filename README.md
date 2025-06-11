@@ -73,6 +73,17 @@ The application has a development mode that uses mock data when Supabase isn't a
 - `npm run preview` - Preview the production build
 - `npm test` - Run Jest tests
 
+### Testing and Building
+Before running tests or creating a production build, make sure to install the
+project's dependencies:
+
+```bash
+npm install
+```
+
+This installs the local `jest` and `vite` binaries used by the `npm test` and
+`npm run build` scripts.
+
 ## Architecture
 
 The application follows a domain-driven hexagonal architecture:

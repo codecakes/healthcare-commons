@@ -55,3 +55,10 @@ export const VERIFY_PROVIDER = gql`
     }
   }
 `;
+
+// Mutation to log out a user and clear the auth cookie
+export const LOGOUT = gql`
+  mutation Logout {
+    logout
+  }
+`;

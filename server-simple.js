@@ -1047,25 +1047,6 @@ app.post('/api/parse-slots', (req, res) => {
   }
 });
 
-// Add a special REST endpoint for logout to avoid GraphQL issues
-app.post('/api/logout', (req, res) => {
-  console.log('REST logout endpoint called');
-  
-  // Clear the auth cookie
-  res.clearCookie('auth_token');
-  
-  // If we have a token in cookies, also remove from token store
-  if (req.cookies && req.cookies.auth_token) {
-    const token = req.cookies.auth_token;
-    
-    // Remove from tokens store in development mode
-    if (tokens[token]) {
-      delete tokens[token];
-    }
-  }
-  
-  res.json({ success: true, message: 'Logged out successfully' });
-});
 
 // Add development routes
 if (developmentMode) {
