@@ -16,6 +16,8 @@ interface Provider {
   id: string;
   name: string;
   specialty: string;
+  location: string;
+  pincode: string;
   distance: string;
   rating: number;
   availableSlots: number;
@@ -252,6 +254,11 @@ const ProviderSearch: React.FC<ProviderSearchProps> = ({ userLocation, demograph
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
+                      <div className="flex items-center text-sm text-gray-600">
+                        <MapPin className="h-4 w-4 mr-2" />
+                        {provider.location}
+                      </div>
+
                       <div className="flex items-center text-sm text-gray-600">
                         <MapPin className="h-4 w-4 mr-2" />
                         {provider.distance} away
