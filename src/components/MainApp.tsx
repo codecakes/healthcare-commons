@@ -28,16 +28,27 @@ const MainApp: React.FC = () => {
   const { location, getCurrentLocation } = useGeolocation();
 
   useEffect(() => {
-    if (!loading && sessionData && !isLoggedIn) {
-      setCurrentLanguage(sessionData.language);
-      
-      // Check if user has completed demographics (patient flow)
-      if (sessionData.demographicsCompleted && !userRole) {
-        login('patient');
-        setAppState('search');
+    if (!loading && !isLoggedIn) {
+      const savedProviderData = localStorage.getItem('providerData');
+
+      // Auto-login provider if data exists in localStorage
+      if (savedProviderData) {
+        login('provider');
+        setAppState('provider-dashboard');
+        return;
+      }
+
+      if (sessionData) {
+        setCurrentLanguage(sessionData.language);
+
+        // Auto-login patient if demographics have been completed
+        if (sessionData.demographicsCompleted) {
+          login('patient');
+          setAppState('search');
+        }
       }
     }
-  }, [loading, sessionData, isLoggedIn, userRole]);
+  }, [loading, sessionData, isLoggedIn]);
 
   const handleGetStarted = (type: 'patient' | 'provider') => {
     login(type);
