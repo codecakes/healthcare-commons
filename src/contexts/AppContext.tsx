@@ -56,18 +56,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const logout = async () => {
     console.log('Logging out user...');
 
-    // Inform the server to clear auth cookies
-    try {
-      await apolloClient.mutate({ mutation: LOGOUT });
-    } catch (err) {
-      console.error('Logout mutation failed', err);
-    }
-    
-    // Reset all state
+    // Reset all state immediately
     setUserRole(null);
     setAppState('welcome');
     setIsLoggedIn(false);
-    
+
     // Clear all session data from localStorage
     localStorage.removeItem('userRole');
     localStorage.removeItem('appState');
@@ -80,6 +73,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
     // Reset demographic completion so a returning visit doesn't auto-progress
     updateSessionData({ demographicsCompleted: false });
+
+    // Inform the server to clear auth cookies asynchronously
+    apolloClient
+      .mutate({ mutation: LOGOUT })
+      .catch((err) => console.error('Logout mutation failed', err));
 
     // For debugging - log remaining localStorage items
     console.log('Logout completed, user returning to welcome screen');
