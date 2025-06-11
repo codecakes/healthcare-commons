@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple GraphQL Tester</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f7f8fc;
+    }
+    h1 {
+      color: #2a3f5f;
+      margin-bottom: 20px;
+    }
+    .container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .panel {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+    }
+    .input-area, .output-area {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+    textarea {
+      flex-grow: 1;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-family: monospace;
+      min-height: 300px;
+      resize: vertical;
+    }
+    .controls {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+    }
+    button {
+      background: #4a6cf7;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #3a5ce6;
+    }
+    .status {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #666;
+    }
+    pre {
+      background: #f5f7ff;
+      padding: 15px;
+      border-radius: 4px;
+      overflow: auto;
+      margin: 0;
+    }
+    .example-queries {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .example {
+      background: #eef1ff;
+      border: 1px solid #dde3ff;
+      border-radius: 4px;
+      padding: 8px 12px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .example:hover {
+      background: #dde3ff;
+    }
+  </style>
+</head>
+<body>
+  <h1>GraphQL API Tester</h1>
+  
+  <div class="container">
+    <div class="panel input-area">
+      <h2>Query</h2>
+      <textarea id="query-input" placeholder="Enter your GraphQL query here...">query {
+  hello
+}</textarea>
+      
+      <div class="example-queries">
+        <div class="example" onclick="loadExample('hello')">Hello Query</div>
+        <div class="example" onclick="loadExample('patients')">Get Patients</div>
+        <div class="example" onclick="loadExample('providers')">Get Providers</div>
+      </div>
+      
+      <div class="controls">
+        <button id="run-btn">Run Query</button>
+        <button id="clear-btn">Clear</button>
+      </div>
+    </div>
+    
+    <div class="panel output-area">
+      <h2>Response</h2>
+      <pre id="response-output">// Response will appear here...</pre>
+      <div class="status" id="status">Ready</div>
+    </div>
+  </div>
+
+  <script>
+    const endpoint = '/graphql';
+    const queryInput = document.getElementById('query-input');
+    const responseOutput = document.getElementById('response-output');
+    const runBtn = document.getElementById('run-btn');
+    const clearBtn = document.getElementById('clear-btn');
+    const statusEl = document.getElementById('status');
+    
+    // Sample queries
+    const examples = {
+      hello: `query {
+  hello
+}`,
+      patients: `query {
+  patients {
+    id
+    name
+    age
+    contactInfo {
+      email
+      phone
+    }
+  }
+}`,
+      providers: `query {
+  providers {
+    id
+    name
+    specialty
+    location
+    availability
+  }
+}`
+    };
+    
+    function loadExample(name) {
+      queryInput.value = examples[name] || '';
+    }
+    
+    runBtn.addEventListener('click', async () => {
+      const query = queryInput.value.trim();
+      if (!query) {
+        statusEl.textContent = 'Error: Query is empty';
+        return;
+      }
+      
+      statusEl.textContent = 'Running query...';
+      
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ query }),
+        });
+        
+        const result = await response.json();
+        responseOutput.textContent = JSON.stringify(result, null, 2);
+        statusEl.textContent = `Completed at ${new Date().toLocaleTimeString()}`;
+      } catch (error) {
+        responseOutput.textContent = `Error: ${error.message}`;
+        statusEl.textContent = 'Failed to execute query';
+      }
+    });
+    
+    clearBtn.addEventListener('click', () => {
+      queryInput.value = '';
+      responseOutput.textContent = '// Response will appear here...';
+      statusEl.textContent = 'Ready';
+    });
+  </script>
+</body>
+</html>

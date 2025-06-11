@@ -1,0 +1,63 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>GraphiQL</title>
+  <style>
+    body {
+      height: 100%;
+      margin: 0;
+      width: 100%;
+      overflow: hidden;
+    }
+    #graphiql {
+      height: 100vh;
+    }
+  </style>
+  <script src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/graphiql@2.3.0/graphiql.min.css" />
+  <script src="https://unpkg.com/graphiql@2.3.0/graphiql.min.js"></script>
+</head>
+<body>
+  <div id="graphiql"></div>
+  <script>
+    function graphQLFetcher(graphQLParams) {
+      return fetch('/graphql', {
+        method: 'post',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(graphQLParams),
+        credentials: 'include',
+      }).then(function (response) {
+        return response.json();
+      });
+    }
+    
+    ReactDOM.render(
+      React.createElement(GraphiQL, {
+        fetcher: graphQLFetcher,
+        defaultQuery: "query { 
+  hello 
+  searchProviders(specialty: "Cardiology") { 
+    id 
+    name 
+    specialty 
+    location 
+    pincode 
+    distance 
+    rating 
+    availability 
+    availableSlots 
+    nextAvailable 
+    languages 
+  } 
+}",
+      }),
+      document.getElementById('graphiql')
+    );
+  </script>
+</body>
+</html>

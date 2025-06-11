@@ -9,6 +9,7 @@ import DemographicsForm from './DemographicsForm';
 import ProviderSearch from './ProviderSearch';
 import ProviderVerification from './ProviderVerification';
 import ProviderDashboard from './ProviderDashboard';
+import DebugPanel from './DebugPanel';
 
 const MainApp: React.FC = () => {
   const {
@@ -81,6 +82,13 @@ const MainApp: React.FC = () => {
         currentLanguage={currentLanguage}
         onLanguageChange={handleLanguageChange}
       />
+      
+      {/* Debug Panel - only shown in development mode */}
+      {import.meta.env.DEV && (
+        <div className="container mx-auto px-4 pt-4">
+          <DebugPanel />
+        </div>
+      )}
       
       {appState === 'welcome' && (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">

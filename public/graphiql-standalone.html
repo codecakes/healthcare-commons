@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>GraphiQL - 100% Offline GraphQL IDE</title>
+  <style>
+    body {
+      height: 100%;
+      margin: 0;
+      width: 100%;
+      overflow: hidden;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    
+    #graphiql {
+      height: 100vh;
+    }
+    
+    .graphiql-container {
+      height: 100vh;
+    }
+    
+    #toolbar {
+      background-color: #f3f4f6;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .title {
+      font-weight: 600;
+      color: #111827;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .badge {
+      background-color: #dcfce7;
+      color: #166534;
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 9999px;
+    }
+  </style>
+  <!-- Load React, ReactDOM, and GraphiQL directly from CDN for offline development -->
+  <script src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/graphiql@2.3.0/graphiql.min.css" />
+  <script src="https://unpkg.com/graphiql@2.3.0/graphiql.min.js"></script>
+</head>
+<body>
+  <div id="toolbar">
+    <div class="title">
+      GraphiQL <span class="badge">100% Offline Mode</span>
+    </div>
+    <div>
+      Endpoint: <code>/graphql</code>
+    </div>
+  </div>
+  <div id="graphiql"></div>
+  <script>
+    // Parse search string to get URL parameters
+    const parameters = {};
+    window.location.search.substr(1).split('&').forEach(function (entry) {
+      const eq = entry.indexOf('=');
+      if (eq >= 0) {
+        parameters[decodeURIComponent(entry.slice(0, eq))] =
+          decodeURIComponent(entry.slice(eq + 1));
+      }
+    });
+    
+    // Define a default query to show in the GraphiQL editor
+    let defaultQuery = parameters.query || `# Welcome to GraphiQL
+#
+# This is a completely offline GraphQL IDE
+# Press the play button (or press Ctrl+Enter) to execute your query
+#
+# Try this query to get started:
+
+query {
+  hello
+  patients {
+    id
+    name
+    age
+    contactInfo {
+      email
+      phone
+    }
+  }
+}`;
+
+    let defaultVariables = parameters.variables || "{}";
+    
+    // Create a GraphQL fetcher function that uses fetch API
+    function graphQLFetcher(graphQLParams) {
+      return fetch('/graphql', {
+        method: 'post',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(graphQLParams),
+        credentials: 'include',
+      }).then(function (response) {
+        return response.json();
+      });
+    }
+    
+    // Render GraphiQL
+    ReactDOM.render(
+      React.createElement(GraphiQL, {
+        fetcher: graphQLFetcher,
+        defaultQuery: defaultQuery,
+        defaultVariables: defaultVariables,
+        headerEditorEnabled: true,
+        shouldPersistHeaders: true,
+      }),
+      document.getElementById('graphiql')
+    );
+  </script>
+</body>
+</html>

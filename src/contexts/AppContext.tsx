@@ -52,11 +52,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const logout = () => {
+    console.log('Logging out user...');
+    
+    // Reset all state
     setUserRole(null);
     setAppState('welcome');
     setIsLoggedIn(false);
     
-    // Clear all session data
+    // Clear all session data from localStorage
     localStorage.removeItem('userRole');
     localStorage.removeItem('appState');
     localStorage.removeItem('demographicData');
@@ -65,6 +68,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     
     // Keep language preference
     localStorage.setItem('currentLanguage', currentLanguage);
+    
+    // For debugging - log remaining localStorage items
+    console.log('Logout completed, user returning to welcome screen');
   };
 
   const handleSetAppState = (state: AppState) => {

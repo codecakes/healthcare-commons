@@ -29,8 +29,13 @@ const LogoutButton: React.FC<LogoutButtonProps> = ({
 }) => {
   const { logout, userRole } = useAppContext();
 
-  const handleLogout = () => {
+  const handleLogout = (e: React.MouseEvent) => {
+    e.preventDefault();
     logout();
+    // Force a page refresh to ensure clean state
+    setTimeout(() => {
+      window.location.href = '/';
+    }, 100);
   };
 
   const getRoleText = () => {
@@ -59,11 +64,13 @@ const LogoutButton: React.FC<LogoutButtonProps> = ({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction 
-            onClick={handleLogout}
-            className="bg-red-600 hover:bg-red-700"
-          >
-            Yes, Logout
+          <AlertDialogAction asChild>
+            <Button 
+              onClick={handleLogout}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Yes, Logout
+            </Button>
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

@@ -1,18 +1,22 @@
 import React, { useState } from 'react';
+import { useMutation } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Shield, Upload, CheckCircle, ArrowLeft } from 'lucide-react';
+import { Shield, CheckCircle, ArrowLeft, AlertCircle } from 'lucide-react';
 import { useAppContext } from '@/contexts/AppContext';
 import LogoutButton from './LogoutButton';
+import { VERIFY_PROVIDER } from '@/lib/graphql';
 
 interface ProviderVerificationProps {
   onVerificationComplete: (data: any) => void;
 }
 
 const ProviderVerification: React.FC<ProviderVerificationProps> = ({ onVerificationComplete }) => {
+  const { t } = useTranslation();
   const { logout } = useAppContext();
   const [formData, setFormData] = useState({
     name: '',
@@ -20,39 +24,45 @@ const ProviderVerification: React.FC<ProviderVerificationProps> = ({ onVerificat
     specialty: '',
     experience: '',
     clinicName: '',
-    address: '',
+    location: '',
+    pincode: '',
     contactNumber: ''
   });
   
   const [verificationStatus, setVerificationStatus] = useState<'pending' | 'verified' | 'rejected'>('pending');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    try {
-      const res = await fetch('/providers/verify', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-      });
-
-      const result = await res.json();
-
-      if (res.ok && result.verified) {
+  
+  // GraphQL mutation for provider verification
+  const [verifyProvider, { loading: isSubmitting, error }] = useMutation(VERIFY_PROVIDER, {
+    onCompleted: (data) => {
+      if (data.verifyProvider.verified) {
         setVerificationStatus('verified');
-        onVerificationComplete(result.provider);
+        onVerificationComplete(data.verifyProvider.provider);
       } else {
         setVerificationStatus('rejected');
       }
+    },
+    onError: () => {
+      setVerificationStatus('rejected');
+    }
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    try {
+      // Use GraphQL mutation
+      await verifyProvider({
+        variables: {
+          name: formData.name,
+          specialty: formData.specialty,
+          licenseNumber: formData.licenseNumber,
+          location: `${formData.clinicName}, ${formData.location}`,
+          pincode: formData.pincode
+        }
+      });
     } catch (err) {
       console.error('Verification failed', err);
       setVerificationStatus('rejected');
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -71,7 +81,7 @@ const ProviderVerification: React.FC<ProviderVerificationProps> = ({ onVerificat
             className="flex items-center gap-2"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to Home
+            {t('backToHome')}
           </Button>
           <LogoutButton variant="outline" size="sm" />
         </div>
@@ -80,29 +90,39 @@ const ProviderVerification: React.FC<ProviderVerificationProps> = ({ onVerificat
           <CardHeader>
             <CardTitle className="flex items-center">
               <Shield className="h-6 w-6 mr-2 text-blue-600" />
-              Provider Verification
+              {t('providerVerification')}
             </CardTitle>
-            <p className="text-gray-600">Complete your profile to start accepting patients</p>
+            <p className="text-gray-600">{t('completeProfilePrompt')}</p>
           </CardHeader>
           <CardContent>
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md flex items-start">
+                <AlertCircle className="h-5 w-5 text-red-500 mr-2 mt-0.5" />
+                <div>
+                  <p className="text-red-700 font-medium">{t('errorOccurred')}</p>
+                  <p className="text-red-600 text-sm">{error.message}</p>
+                </div>
+              </div>
+            )}
+            
             {verificationStatus === 'verified' ? (
               <div className="text-center py-8">
                 <CheckCircle className="h-16 w-16 text-green-600 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-green-800 mb-2">Verification Complete!</h3>
-                <p className="text-gray-600 mb-4">You can now start accepting patient appointments.</p>
+                <h3 className="text-xl font-semibold text-green-800 mb-2">{t('verificationComplete')}</h3>
+                <p className="text-gray-600 mb-4">{t('canAcceptAppointments')}</p>
                 <Badge className="bg-green-100 text-green-800">
-                  Verified Healthcare Provider
+                  {t('verifiedProvider')}
                 </Badge>
               </div>
             ) : verificationStatus === 'rejected' ? (
               <div className="text-center py-8">
-                <p className="text-red-600 mb-4">Verification failed. Please check your details and try again.</p>
-                <Button onClick={() => setVerificationStatus('pending')}>Back to Form</Button>
+                <p className="text-red-600 mb-4">{t('verificationFailed')}</p>
+                <Button onClick={() => setVerificationStatus('pending')}>{t('backToForm')}</Button>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <Label htmlFor="name">Full Name *</Label>
+                  <Label htmlFor="name">{t('fullName')} *</Label>
                   <Input
                     id="name"
                     value={formData.name}
@@ -114,7 +134,7 @@ const ProviderVerification: React.FC<ProviderVerificationProps> = ({ onVerificat
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="licenseNumber">Medical License Number *</Label>
+                    <Label htmlFor="licenseNumber">{t('medicalLicenseNumber')} *</Label>
                     <Input
                       id="licenseNumber"
                       value={formData.licenseNumber}
@@ -124,7 +144,7 @@ const ProviderVerification: React.FC<ProviderVerificationProps> = ({ onVerificat
                     />
                   </div>
                   <div>
-                    <Label htmlFor="specialty">Specialty *</Label>
+                    <Label htmlFor="specialty">{t('specialty')} *</Label>
                     <Input
                       id="specialty"
                       value={formData.specialty}
@@ -136,7 +156,7 @@ const ProviderVerification: React.FC<ProviderVerificationProps> = ({ onVerificat
                 </div>
                 
                 <div>
-                  <Label htmlFor="clinicName">Clinic/Hospital Name *</Label>
+                  <Label htmlFor="clinicName">{t('clinicName')} *</Label>
                   <Input
                     id="clinicName"
                     value={formData.clinicName}
@@ -147,11 +167,11 @@ const ProviderVerification: React.FC<ProviderVerificationProps> = ({ onVerificat
                 </div>
                 
                 <div>
-                  <Label htmlFor="address">Address *</Label>
+                  <Label htmlFor="location">{t('address')} *</Label>
                   <Input
-                    id="address"
-                    value={formData.address}
-                    onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
+                    id="location"
+                    value={formData.location}
+                    onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
                     placeholder="123 Healthcare Street, Medical District"
                     required
                   />
@@ -159,7 +179,17 @@ const ProviderVerification: React.FC<ProviderVerificationProps> = ({ onVerificat
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="experience">Years of Experience</Label>
+                    <Label htmlFor="pincode">{t('pincode')} *</Label>
+                    <Input
+                      id="pincode"
+                      value={formData.pincode}
+                      onChange={(e) => setFormData(prev => ({ ...prev, pincode: e.target.value }))}
+                      placeholder="400001"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="experience">{t('yearsOfExperience')}</Label>
                     <Input
                       id="experience"
                       type="number"
@@ -168,17 +198,18 @@ const ProviderVerification: React.FC<ProviderVerificationProps> = ({ onVerificat
                       placeholder="5"
                     />
                   </div>
-                  <div>
-                    <Label htmlFor="contactNumber">Contact Number *</Label>
-                    <Input
-                      id="contactNumber"
-                      type="tel"
-                      value={formData.contactNumber}
-                      onChange={(e) => setFormData(prev => ({ ...prev, contactNumber: e.target.value }))}
-                      placeholder="+91 98765 43210"
-                      required
-                    />
-                  </div>
+                </div>
+                
+                <div>
+                  <Label htmlFor="contactNumber">{t('contactNumber')} *</Label>
+                  <Input
+                    id="contactNumber"
+                    type="tel"
+                    value={formData.contactNumber}
+                    onChange={(e) => setFormData(prev => ({ ...prev, contactNumber: e.target.value }))}
+                    placeholder="+91 98765 43210"
+                    required
+                  />
                 </div>
                 
                 <div className="flex gap-3 pt-4">
@@ -188,14 +219,14 @@ const ProviderVerification: React.FC<ProviderVerificationProps> = ({ onVerificat
                     onClick={handleGoBack}
                     className="flex-1"
                   >
-                    Cancel
+                    {t('cancel')}
                   </Button>
                   <Button 
                     type="submit" 
                     className="flex-1 bg-blue-600 hover:bg-blue-700"
                     disabled={isSubmitting}
                   >
-                    {isSubmitting ? 'Verifying...' : 'Submit for Verification'}
+                    {isSubmitting ? t('verifying') : t('submitForVerification')}
                   </Button>
                 </div>
               </form>

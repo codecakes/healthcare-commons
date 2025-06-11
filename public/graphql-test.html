@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline GraphQL Tester</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.5;
+      color: #333;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f9fafb;
+    }
+    h1 {
+      color: #1f2937;
+      border-bottom: 2px solid #e5e7eb;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
+    .container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 768px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
+    .panel {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+    }
+    .panel-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .input-area, .output-area {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+    textarea, #response-output {
+      flex-grow: 1;
+      padding: 15px;
+      border: 1px solid #e5e7eb;
+      border-radius: 4px;
+      font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+      font-size: 14px;
+      line-height: 1.5;
+      tab-size: 2;
+      min-height: 300px;
+      resize: vertical;
+      background-color: #f8fafc;
+    }
+    #response-output {
+      white-space: pre-wrap;
+      overflow: auto;
+      margin: 0;
+    }
+    .controls {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+    }
+    button {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background-color 0.2s;
+    }
+    button:hover {
+      background: #2563eb;
+    }
+    button:active {
+      background: #1d4ed8;
+    }
+    button.secondary {
+      background: #e5e7eb;
+      color: #1f2937;
+    }
+    button.secondary:hover {
+      background: #d1d5db;
+    }
+    .status {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #6b7280;
+    }
+    .success { color: #10b981; }
+    .error { color: #ef4444; }
+    .example-queries {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .example {
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+      border-radius: 4px;
+      padding: 6px 12px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .example:hover {
+      background: #e5e7eb;
+    }
+    #variables-panel {
+      margin-top: 20px;
+    }
+    .expand-btn {
+      background: none;
+      border: none;
+      padding: 4px 8px;
+      font-size: 14px;
+      color: #6b7280;
+      cursor: pointer;
+    }
+    .expand-btn:hover {
+      color: #1f2937;
+    }
+    .hidden {
+      display: none;
+    }
+    .header-panel {
+      margin-bottom: 20px;
+      padding: 10px 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    .endpoint-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    #endpoint {
+      flex-grow: 1;
+      padding: 8px 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <div class="header-panel">
+    <h1>Offline GraphQL Tester</h1>
+    <div class="endpoint-info">
+      <label for="endpoint">GraphQL Endpoint:</label>
+      <input type="text" id="endpoint" value="/graphql">
+      <button id="check-btn" class="secondary">Check Connection</button>
+    </div>
+  </div>
+  
+  <div class="container">
+    <div class="panel input-area">
+      <div class="panel-title">
+        <h2>Query</h2>
+        <button class="expand-btn" id="variables-toggle">+ Variables</button>
+      </div>
+      
+      <textarea id="query-input" placeholder="Enter your GraphQL query here...">query {
+  hello
+}</textarea>
+      
+      <div id="variables-panel" class="hidden">
+        <h3>Variables (JSON)</h3>
+        <textarea id="variables-input" placeholder='{ "id": 123 }'></textarea>
+      </div>
+      
+      <div class="example-queries">
+        <div class="example" onclick="loadExample('hello')">Hello Query</div>
+        <div class="example" onclick="loadExample('patients')">Get Patients</div>
+        <div class="example" onclick="loadExample('providers')">Get Providers</div>
+        <div class="example" onclick="loadExample('patient')">Get Patient</div>
+      </div>
+      
+      <div class="controls">
+        <button id="run-btn">Run Query</button>
+        <button id="clear-btn" class="secondary">Clear</button>
+      </div>
+    </div>
+    
+    <div class="panel output-area">
+      <div class="panel-title">
+        <h2>Response</h2>
+        <button id="copy-btn" class="secondary">Copy</button>
+      </div>
+      <pre id="response-output">// Response will appear here...</pre>
+      <div class="status" id="status">Ready</div>
+    </div>
+  </div>
+
+  <script>
+    // Elements
+    const endpointInput = document.getElementById('endpoint');
+    const queryInput = document.getElementById('query-input');
+    const variablesInput = document.getElementById('variables-input');
+    const responseOutput = document.getElementById('response-output');
+    const runBtn = document.getElementById('run-btn');
+    const clearBtn = document.getElementById('clear-btn');
+    const checkBtn = document.getElementById('check-btn');
+    const copyBtn = document.getElementById('copy-btn');
+    const statusEl = document.getElementById('status');
+    const variablesToggle = document.getElementById('variables-toggle');
+    const variablesPanel = document.getElementById('variables-panel');
+    
+    // Sample queries
+    const examples = {
+      hello: {
+        query: `query {
+  hello
+}`,
+        variables: ``
+      },
+      patients: {
+        query: `query {
+  patients {
+    id
+    name
+    age
+    contactInfo {
+      email
+      phone
+    }
+  }
+}`,
+        variables: ``
+      },
+      providers: {
+        query: `query {
+  providers {
+    id
+    name
+    specialty
+    location
+    availability
+  }
+}`,
+        variables: ``
+      },
+      patient: {
+        query: `query GetPatient($id: ID!) {
+  patient(id: $id) {
+    id
+    name
+    age
+    contactInfo {
+      email
+      phone
+    }
+  }
+}`,
+        variables: `{
+  "id": "1"
+}`
+      }
+    };
+    
+    // Load example query
+    function loadExample(name) {
+      const example = examples[name];
+      if (example) {
+        queryInput.value = example.query || '';
+        if (example.variables) {
+          variablesInput.value = example.variables;
+          variablesPanel.classList.remove('hidden');
+          variablesToggle.textContent = '- Variables';
+        }
+      }
+    }
+    
+    // Toggle variables panel
+    variablesToggle.addEventListener('click', () => {
+      variablesPanel.classList.toggle('hidden');
+      variablesToggle.textContent = variablesPanel.classList.contains('hidden') 
+        ? '+ Variables' 
+        : '- Variables';
+    });
+    
+    // Run query
+    runBtn.addEventListener('click', async () => {
+      const endpoint = endpointInput.value.trim();
+      const query = queryInput.value.trim();
+      
+      if (!endpoint) {
+        updateStatus('Error: No endpoint specified', 'error');
+        return;
+      }
+      
+      if (!query) {
+        updateStatus('Error: Query is empty', 'error');
+        return;
+      }
+      
+      updateStatus('Running query...', '');
+      
+      try {
+        // Parse variables
+        let variables = {};
+        try {
+          const variablesText = variablesInput.value.trim();
+          if (variablesText) {
+            variables = JSON.parse(variablesText);
+          }
+        } catch (e) {
+          updateStatus('Error parsing variables: ' + e.message, 'error');
+          return;
+        }
+        
+        // Build request
+        const payload = {
+          query,
+          variables
+        };
+        
+        // Send request
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
+        
+        // Handle response
+        const result = await response.json();
+        displayResponse(result);
+        
+        updateStatus(
+          `Completed at ${new Date().toLocaleTimeString()}`,
+          result.errors ? 'error' : 'success'
+        );
+      } catch (error) {
+        displayResponse({ error: error.message });
+        updateStatus(`Failed: ${error.message}`, 'error');
+      }
+    });
+    
+    // Check endpoint connection
+    checkBtn.addEventListener('click', async () => {
+      const endpoint = endpointInput.value.trim();
+      
+      if (!endpoint) {
+        updateStatus('Error: No endpoint specified', 'error');
+        return;
+      }
+      
+      updateStatus('Checking connection...', '');
+      
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            query: `{ __typename }`
+          }),
+        });
+        
+        if (response.ok) {
+          updateStatus('Connection successful! Endpoint is available.', 'success');
+        } else {
+          updateStatus(`Connection failed: ${response.status} ${response.statusText}`, 'error');
+        }
+      } catch (error) {
+        updateStatus(`Connection failed: ${error.message}`, 'error');
+      }
+    });
+    
+    // Clear inputs and output
+    clearBtn.addEventListener('click', () => {
+      queryInput.value = '';
+      variablesInput.value = '';
+      responseOutput.textContent = '// Response will appear here...';
+      updateStatus('Ready', '');
+    });
+    
+    // Copy response to clipboard
+    copyBtn.addEventListener('click', () => {
+      const text = responseOutput.textContent;
+      navigator.clipboard.writeText(text).then(
+        () => updateStatus('Response copied to clipboard', 'success'),
+        () => updateStatus('Failed to copy response', 'error')
+      );
+    });
+    
+    // Display formatted response
+    function displayResponse(data) {
+      responseOutput.textContent = JSON.stringify(data, null, 2);
+      responseOutput.classList.toggle('error', !!data.errors);
+    }
+    
+    // Update status message
+    function updateStatus(message, type = '') {
+      statusEl.textContent = message;
+      statusEl.className = 'status';
+      if (type) {
+        statusEl.classList.add(type);
+      }
+    }
+    
+    // Initial check on page load
+    checkBtn.click();
+  </script>
+</body>
+</html>
