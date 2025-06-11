@@ -42,15 +42,22 @@ const ProviderSearch: React.FC<ProviderSearchProps> = ({ userLocation, demograph
 
   // GraphQL query for providers search
   const { loading, error, data, refetch } = useQuery(SEARCH_PROVIDERS, {
-    variables: { 
+    variables: {
       name: searchQuery || undefined,
       pincode: locationQuery || undefined,
       // If we have symptoms and specialties, use them to filter
-      specialty: selectedSymptoms.length > 0 ? 
+      specialty: selectedSymptoms.length > 0 ?
         getSpecialtyForSymptom(selectedSymptoms[0])[0] : undefined
     },
     fetchPolicy: 'network-only',
   });
+
+  // Log GraphQL errors to aid debugging
+  useEffect(() => {
+    if (error) {
+      console.error('Provider search query error:', error);
+    }
+  }, [error]);
 
   // Get diagnosis recommendations based on selected symptoms
   const { diagnosis, loading: diagnosisLoading } = useDiagnosis(selectedSymptoms);
@@ -59,13 +66,17 @@ const ProviderSearch: React.FC<ProviderSearchProps> = ({ userLocation, demograph
     handleSearch();
   }, []);
 
-  const handleSearch = () => {
-    refetch({ 
-      name: searchQuery || undefined,
-      pincode: locationQuery || undefined,
-      specialty: selectedSymptoms.length > 0 ? 
-        getSpecialtyForSymptom(selectedSymptoms[0])[0] : undefined
-    });
+  const handleSearch = async () => {
+    try {
+      await refetch({
+        name: searchQuery || undefined,
+        pincode: locationQuery || undefined,
+        specialty: selectedSymptoms.length > 0 ?
+          getSpecialtyForSymptom(selectedSymptoms[0])[0] : undefined
+      });
+    } catch (refetchError) {
+      console.error('Error during provider refetch:', refetchError);
+    }
   };
 
   const handleBookAppointment = (provider: Provider) => {
