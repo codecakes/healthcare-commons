@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import { ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 
@@ -12,9 +13,8 @@ console.log(`Apollo Client connecting to: ${graphqlEndpoint} in ${isDevelopment 
 // Create an HTTP link to your GraphQL server
 const httpLink = createHttpLink({
   uri: graphqlEndpoint,
-  // In development with different ports, using 'include' can cause CORS issues
-  // In production or when same-origin, 'include' is fine for auth
-  credentials: isDevelopment ? 'omit' : 'include'
+  // Always include credentials for auth cookie handling
+  credentials: 'include'
 });
 
 // Create the Apollo Client instance

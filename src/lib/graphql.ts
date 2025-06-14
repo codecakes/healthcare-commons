@@ -2,8 +2,8 @@ import { gql } from '@apollo/client';
 
 // Query to search for providers
 export const SEARCH_PROVIDERS = gql`
-  query SearchProviders($name: String, $specialty: String, $pincode: String) {
-    searchProviders(name: $name, specialty: $specialty, pincode: $pincode) {
+  query SearchProviders($name: String, $specialty: String, $pincode: String, $location: String) {
+    searchProviders(name: $name, specialty: $specialty, pincode: $pincode, location: $location) {
       id
       name
       specialty

@@ -29,13 +29,15 @@ const LogoutButton: React.FC<LogoutButtonProps> = ({
 }) => {
   const { logout, userRole } = useAppContext();
 
-  const handleLogout = (e: React.MouseEvent) => {
+  const handleLogout = async (e: React.MouseEvent) => {
     e.preventDefault();
-    logout();
-    // Force a page refresh to ensure clean state
-    setTimeout(() => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error('Logout failed:', error);
+    } finally {
       window.location.href = '/';
-    }, 100);
+    }
   };
 
   const getRoleText = () => {

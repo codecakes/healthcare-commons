@@ -1,5 +1,5 @@
 import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
-import { useFingerprint } from '@/hooks/useFingerprint';
+import { useFingerprint, SessionData } from '@/hooks/useFingerprint';
 import apolloClient from '@/lib/apollo';
 import { LOGOUT } from '@/lib/graphql';
 
@@ -10,7 +10,7 @@ interface AppContextType {
   userRole: UserRole;
   appState: AppState;
   currentLanguage: string;
-  sessionData: any;
+  sessionData: SessionData | null;
   isLoggedIn: boolean;
   setUserRole: (role: UserRole) => void;
   setAppState: (state: AppState) => void;
@@ -56,7 +56,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const logout = async () => {
     console.log('Logging out user...');
 
-    // Reset all state immediately
+    // Reset all local state
     setUserRole(null);
     setAppState('welcome');
     setIsLoggedIn(false);
@@ -67,20 +67,19 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     localStorage.removeItem('demographicData');
     localStorage.removeItem('providerData');
     localStorage.removeItem('loginTimestamp');
-
-    // Keep language preference
     localStorage.setItem('currentLanguage', currentLanguage);
 
-    // Reset demographic completion so a returning visit doesn't auto-progress
     updateSessionData({ demographicsCompleted: false });
 
-    // Inform the server to clear auth cookies asynchronously
-    apolloClient
-      .mutate({ mutation: LOGOUT })
-      .catch((err) => console.error('Logout mutation failed', err));
+    try {
+      await apolloClient.mutate({ mutation: LOGOUT });
+      await apolloClient.clearStore(); // Clear Apollo cache to prevent stale data
+    } catch (err) {
+      console.error('Logout mutation failed', err);
+    }
 
-    // For debugging - log remaining localStorage items
-    console.log('Logout completed, user returning to welcome screen');
+    // Redirect to welcome
+    window.location.href = '/';
   };
 
   const handleSetAppState = (state: AppState) => {

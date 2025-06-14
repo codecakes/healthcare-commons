@@ -26,7 +26,7 @@ const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:8080';
 
 // Configure environment-specific CORS middleware
 app.use(cors({
-  origin: developmentMode ? '*' : frontendUrl,
+  origin: frontendUrl,
   credentials: true,
   methods: ['GET', 'POST', 'OPTIONS', 'PUT', 'PATCH', 'DELETE'],
   allowedHeaders: ['X-Requested-With', 'Content-Type', 'Authorization', 'Accept']
